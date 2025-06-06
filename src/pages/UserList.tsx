@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Card, CardContent, CardActions,
-  Typography, IconButton, Box
-} from '@mui/material';
+import { Paper, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { User } from '../types/User';
 
@@ -10,34 +7,47 @@ const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-    setUsers(storedUsers);
+    const stored = localStorage.getItem('users');
+    if (stored) setUsers(JSON.parse(stored));
   }, []);
 
   const handleDelete = (index: number) => {
-    const updated = users.filter((_, i) => i !== index);
-    setUsers(updated);
+    const updated = [...users];
+    updated.splice(index, 1);
     localStorage.setItem('users', JSON.stringify(updated));
+    setUsers(updated);
   };
 
   return (
-    <Box>
-      <Typography variant="h6" gutterBottom>Usuários Cadastrados</Typography>
-      {users.map((u, index) => (
-        <Card key={index} sx={{ mb: 2 }}>
-          <CardContent>
-            <Typography><strong>Nome:</strong> {u.name}</Typography>
-            <Typography><strong>Email:</strong> {u.email}</Typography>
-            <Typography><strong>Telefone:</strong> {u.phone}</Typography>
-          </CardContent>
-          <CardActions sx={{ justifyContent: 'flex-end' }}>
-            <IconButton color="error" onClick={() => handleDelete(index)}>
-              <DeleteIcon />
-            </IconButton>
-          </CardActions>
-        </Card>
-      ))}
-    </Box>
+    <Paper sx={{ p: 4, mt: 4 }}>
+      <Typography variant="h6" gutterBottom>
+        Usuários Cadastrados
+      </Typography>
+      <List>
+        {users.map((user, index) => (
+          <ListItem
+            key={index}
+            secondaryAction={
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(index)}>
+                <DeleteIcon />
+              </IconButton>
+            }
+          >
+            <ListItemText
+              primary={user.name}
+              secondary={
+                <>
+                  <div>Email: {user.email}</div>
+                  <div>Telefone: {user.phone}</div>
+                  <div>CPF: {user.cpf}</div>
+                  <div style={{ color: 'red' }}>Senha: ****</div>
+                </>
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Paper>
   );
 };
 
